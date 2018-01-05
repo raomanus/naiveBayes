@@ -1,4 +1,5 @@
 import math
+import csv
 from stop_words import get_stop_words
 
 class trainingSet:
@@ -76,6 +77,28 @@ class trainingSet:
 		else:
 			return "ham"
 
+	def classifyTestMail(self,fileName):
+		testFile = open(fileName,'r')
+		testContent = testFile.readlines()
+
+		outputFile = open("output.csv","w")
+		csvWriter = csv.writer(outputFile)
+		csvWriter.writerow(["Predicted Value", "Actual Value", "Data"])
+
+		for line in testContent:
+			line = line.split(' ')
+			emailId = line[0]
+			actualClass = line[1]
+			predictedClass = self.classifyMail(line[2:])
+			if actualClass == predictedClass:
+				self.correct += 1
+			else:
+				self.error += 1
+			outputLine = [predictedClass, actualClass, ' '.join(line)]
+			csvWriter.writerow(outputLine)
+
+		
+
 	def __init__(self, file):
 		self.spamMail = 0
 		self.hamMail = 0
@@ -84,6 +107,8 @@ class trainingSet:
 		self.spamWords = dict()
 		self.hamWords = dict()
 		self.stopWords = get_stop_words('en')
+		self.correct = 0
+		self.error = 0
 
 		lines = file.readlines()
 		for line in lines:
